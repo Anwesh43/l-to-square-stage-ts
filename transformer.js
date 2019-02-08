@@ -67,12 +67,8 @@ class FileCommitter {
     }
 
     checkForChanges() {
-        const fcl = new FileCheckerLoop(path.join(__dirname, this.fn), new Promise((resolve, reject) => {
-            const commands = ['tsc *.ts', `git add ${this.fn}`, `git commit -m "commit #${this.number++}"`]
-            Promise.all(commands.map(commandPromise)).then(() => {
-                resolve(true)
-            }).catch(err=>reject(err))
-        }))
+        const commands = ['tsc *.ts', `git add ${this.fn}`, `git commit -m "commit #${this.number++}"`]
+        const fcl = new FileCheckerLoop(path.join(__dirname, this.fn), Promise.all(commands.map(commandPromise)))
         fcl.start()
     }
 }
