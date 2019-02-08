@@ -173,3 +173,27 @@ class LTSNode {
         return this
     }
 }
+
+class LToSquare {
+
+    root : LTSNode = new LTSNode(0)
+    curr : LTSNode = this.root
+    dir : number = 1
+
+    draw(context : CanvasRenderingContext2D) {
+
+    }
+
+    update(cb : Function) {
+        this.curr.update(() => {
+            this.curr = this.curr.getNext(this.dir, () => {
+                this.dir *= -1
+            })
+            cb()
+        })
+    }
+
+    startUpdating(cb : Function) {
+        this.curr.startUpdating(cb)
+    }
+}
