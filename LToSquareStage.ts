@@ -197,3 +197,25 @@ class LToSquare {
         this.curr.startUpdating(cb)
     }
 }
+
+class Renderer {
+
+    lts : LToSquare = new LToSquare()
+    animator : Animator = new Animator()
+
+    render(context : CanvasRenderingContext2D) {
+        this.lts.draw(context)
+    }
+
+    handleTap(cb : Function) {
+        this.lts.startUpdating(() => {
+            this.animator.start(() => {
+                cb()
+                this.lts.update(() => {
+                    this.animator.stop()
+                    cb()
+                })
+            })
+        })
+    }
+}
