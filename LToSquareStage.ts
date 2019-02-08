@@ -27,6 +27,37 @@ const updateValue : Function = (scale : number, dir : number, a : number, b : nu
     return mirrorValue(scale, a, b) * dir * scGap
 }
 
+const drawLLine : Function = (context : CanvasRenderingContext2D, i : number, sc1 : number, sc2 : number, size : number) => {
+    const sf : number = 1 - 2 * i
+    context.save()
+    context.translate(-size, size * sf * sc1)
+    context.rotate(-Math.PI * 0.05 * sc2)
+    context.beginPath()
+    context.moveTo(0, 0)
+    context.lineTo(2 * size, 0)
+    context.stroke()
+    context.restore()
+}
+
+const drawLTSNode : Function = (context : CanvasRenderingContext2D, i : number, scale : number) => {
+    const gap : number = w / (nodes + 1)
+    const size : number = gap / sizeFactor
+    const sc1 : number = divideScale(scale, 0, 2)
+    const sc2 : number = divideScale(scale, 1, 2)
+    context.save()
+    context.translate(gap * (i + 1), h/2)
+    for (var j = 0; j < lines; j++) {
+        const sc1j : number = divideScale(sc1, 0, lines)
+        const sc2j : number = divideScale(sc2, 0, lines)
+        context.save()
+        context.scale(1 - 2 * j, 1 - 2 * j)
+        drawLLine(context, j, sc1j, sc2j, size)
+        context.restore()
+
+    }
+    context.restore()
+}
+
 class LToSquareStage {
     canvas : HTMLCanvasElement = document.createElement('canvas')
     context : CanvasRenderingContext2D
