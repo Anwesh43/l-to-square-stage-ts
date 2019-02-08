@@ -14,7 +14,7 @@ const maxScale : Function = (scale : number, i : number, n : number) : number =>
 }
 
 const divideScale : Function = (scale : number, i : number, n : number) : number => {
-    return Math.min(1 / n, maxScale(i, n)) * n
+    return Math.min(1 / n, maxScale(scale, i, n)) * n
 }
 const scaleFactor : Function = (scale : number) : number => Math.floor(scale / scDiv)
 
@@ -27,15 +27,21 @@ const updateValue : Function = (scale : number, dir : number, a : number, b : nu
     return mirrorValue(scale, a, b) * dir * scGap
 }
 
-const drawLLine : Function = (context : CanvasRenderingContext2D, i : number, sc1 : number, sc2 : number, size : number) => {
-    const sf : number = 1 - 2 * i
-    context.save()
-    context.translate(-size, size * sf * sc1)
-    context.rotate(-Math.PI * 0.05 * sc2)
+const drawLine : Function = (context : CanvasRenderingContext2D, size : number) => {
     context.beginPath()
     context.moveTo(0, 0)
     context.lineTo(2 * size, 0)
     context.stroke()
+}
+const drawLLine : Function = (context : CanvasRenderingContext2D, sc1 : number, sc2 : number, size : number) => {
+    context.save()
+    context.translate(-size, size * sc1)
+    for (var i = 0; i < 2; i++) {
+        context.save()
+        context.rotate(-Math.PI * 0.5 * i * sc2)
+        drawLine(context, size)
+        context.restore()
+    }
     context.restore()
 }
 
@@ -44,14 +50,18 @@ const drawLTSNode : Function = (context : CanvasRenderingContext2D, i : number, 
     const size : number = gap / sizeFactor
     const sc1 : number = divideScale(scale, 0, 2)
     const sc2 : number = divideScale(scale, 1, 2)
+    console.log(`${sc1}, ${sc2}`)
+    context.strokeStyle = foreColor
+    context.lineCap = 'round'
+    context.lineWidth = Math.min(w, h) / strokeFactor
     context.save()
     context.translate(gap * (i + 1), h/2)
     for (var j = 0; j < lines; j++) {
-        const sc1j : number = divideScale(sc1, 0, lines)
-        const sc2j : number = divideScale(sc2, 0, lines)
+        const sc1j : number = divideScale(sc1, j, lines)
+        const sc2j : number = divideScale(sc2, j, lines)
         context.save()
         context.scale(1 - 2 * j, 1 - 2 * j)
-        drawLLine(context, j, sc1j, sc2j, size)
+        drawLLine(context, sc1j, sc2j, size)
         context.restore()
 
     }
@@ -98,7 +108,7 @@ class State {
     prevScale : number = 0
 
     update(cb : Function) {
-        this.scale += updateValue(this.scale)
+        this.scale += updateValue(this.scale, this.dir, lines, lines)
         if (Math.abs(this.scale - this.prevScale) > 1) {
             this.scale = this.prevScale + this.dir
             this.dir = 0
@@ -185,7 +195,7 @@ class LToSquare {
     dir : number = 1
 
     draw(context : CanvasRenderingContext2D) {
-
+        this.root.draw(context)
     }
 
     update(cb : Function) {
